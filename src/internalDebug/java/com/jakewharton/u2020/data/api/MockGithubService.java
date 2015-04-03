@@ -2,7 +2,9 @@ package com.jakewharton.u2020.data.api;
 
 import android.content.SharedPreferences;
 import com.jakewharton.u2020.data.api.model.RepositoriesResponse;
+import com.jakewharton.u2020.data.api.model.Repository;
 import com.jakewharton.u2020.util.EnumPreferences;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -43,8 +45,11 @@ public final class MockGithubService implements GithubService {
   @Override public Observable<RepositoriesResponse> repositories(@Query("q") SearchQuery query,
       @Query("sort") Sort sort, @Query("order") Order order) {
     RepositoriesResponse response = getResponse(MockRepositoriesResponse.class).response;
-    SortUtil.sort(response.items, sort, order);
 
-    return Observable.just(response);
+    // Don't modify the original list when sorting.
+    ArrayList<Repository> items = new ArrayList<>(response.items);
+    SortUtil.sort(items, sort, order);
+
+    return Observable.just(new RepositoriesResponse(items));
   }
 }
